@@ -113,7 +113,8 @@ def prepare_assets() -> dict[str, Path]:
         src = ASSETS / f"{name}.png"
         dst = BUILD / f"{name}.png"
         if name == "logo":
-            Image.open(src).convert("RGBA").save(dst)
+            # Logo is already composited onto white; keep RGB as-is
+            Image.open(src).convert("RGB").save(dst)
         else:
             clean_image(src, dst)
         paths[name] = dst
@@ -585,17 +586,19 @@ def build():
         ("3.", "Theoretical Background", "5"),
         ("", "3.1  K-Means as an Optimization Procedure", "5"),
         ("", "3.2  Centroid Initialization Strategies", "5"),
-        ("4.", "Implementation", "6"),
+        ("4.", "Implementation Idea and Description", "6"),
         ("", "4.1  Software Environment", "6"),
-        ("", "4.2  Functional Architecture", "6"),
-        ("", "4.3  Main Program Workflow", "7"),
-        ("5.", "Experimental Results", "7"),
-        ("", "5.1  Experimental Setup", "7"),
-        ("", "5.2  Visual Comparison for k = 3, 5, 7", "8"),
-        ("", "5.3  Qualitative Summary", "9"),
-        ("6.", "Discussion", "10"),
-        ("7.", "Conclusion", "10"),
-        ("", "References", "11"),
+        ("", "4.2  Implementation Idea (K-Means Recipe)", "6"),
+        ("", "4.3  Detailed Function Descriptions", "7"),
+        ("", "4.4  Testing Procedure", "9"),
+        ("", "4.5  Main Program Workflow", "9"),
+        ("5.", "Experimental Results and Commentary", "10"),
+        ("", "5.1  Experimental Setup", "10"),
+        ("", "5.2  Visual Comparison for k = 3, 5, 7", "10"),
+        ("", "5.3  Qualitative Summary", "12"),
+        ("6.", "Discussion", "12"),
+        ("7.", "Conclusion", "13"),
+        ("", "References", "13"),
     ]
     for num, title, page in toc:
         left = f"{num}&nbsp;&nbsp;{title}" if num else f"&nbsp;&nbsp;&nbsp;&nbsp;{title}"
@@ -817,16 +820,19 @@ def build():
         )
     )
 
+
     # ========================= 4. IMPLEMENTATION =========================
-    story.append(Paragraph("4. Implementation", styles["h1"]))
+    story.append(Paragraph("4. Implementation Idea and Description", styles["h1"]))
     story.append(HLine(content_width, thickness=0.8, space_before=0, space_after=8))
+
     story.append(Paragraph("4.1. Software Environment", styles["h2"]))
     story.append(
         Paragraph(
             "The solution is developed in a Jupyter Notebook and uses only the libraries "
             "permitted by the course specification. Pre-built clustering routines "
             "(for example, <font face='Courier'>sklearn.cluster.KMeans</font>) are "
-            "excluded from the submission.",
+            "excluded from the submission, although they may be used privately for "
+            "cross-checking.",
             styles["body"],
         )
     )
@@ -838,21 +844,21 @@ def build():
         [
             Paragraph("NumPy", styles["cell"]),
             Paragraph(
-                "Vectorized distance computation, centroid updates, and array reshaping.",
+                "Matrix computation: distance evaluation, centroid means, reshape, and MSE.",
                 styles["cell"],
             ),
         ],
         [
             Paragraph("Pillow (PIL)", styles["cell"]),
             Paragraph(
-                "Image I/O, explicit RGB conversion, and export to png / jpg / pdf.",
+                "Image reading/writing, RGB conversion, and export to png / jpg / pdf.",
                 styles["cell"],
             ),
         ],
         [
             Paragraph("Matplotlib", styles["cell"]),
             Paragraph(
-                "Display of original and reconstructed images during experimentation.",
+                "Display of original and reconstructed images during testing and demos.",
                 styles["cell"],
             ),
         ],
@@ -860,45 +866,167 @@ def build():
     story.append(styled_table(lib, [3.4 * cm, 12.4 * cm]))
     story.append(Spacer(1, 0.15 * cm))
 
-    story.append(Paragraph("4.2. Functional Architecture", styles["h2"]))
+    story.append(Paragraph("4.2. Implementation Idea (K-Means Recipe)", styles["h2"]))
     story.append(
         Paragraph(
-            "The program is decomposed into documented helper functions. The design "
-            "keeps mathematical operations (clustering) separate from I/O and "
-            "visualization, which facilitates testing and reuse.",
+            "Following the classical Lloyd procedure, the practical pipeline used in this "
+            "project can be summarized as the following recipe:",
             styles["body"],
         )
     )
-    funcs = [
-        (
-            "read_img(img_path)",
-            "Opens an image, converts it to RGB, and returns a floating-point array of shape (H, W, 3).",
-        ),
-        (
-            "show_img / save_img",
-            "Visualize an image with Matplotlib, or clip intensities to [0, 255] and write an 8-bit file.",
-        ),
-        (
-            "convert_img_to_1d(img_2d)",
-            "Reshapes the image into an (N, 3) design matrix suitable for clustering.",
-        ),
-        (
-            "kmeans(...)",
-            "Executes Lloyd iteration with random or in_pixels initialization; returns centroids and labels.",
-        ),
-        (
-            "generate_2d_img(...)",
-            "Maps every pixel to its centroid color and restores the spatial layout (H, W, 3).",
-        ),
-        (
-            "reconstruction_error(...)",
-            "Computes the MSE in (3), providing a quantitative complement to visual inspection.",
-        ),
+    recipe = [
+        "<b>Choose k.</b> Select the desired number of color clusters (palette size).",
+        "<b>Initialize centroids.</b> Create <i>k</i> initial prototypes either uniformly in "
+        "[0, 255]<sup>3</sup> (<i>random</i>) or by sampling actual image pixels "
+        "(<i>in_pixels</i>).",
+        "<b>Compute distances.</b> For every pixel, evaluate the squared Euclidean distance "
+        "to each of the <i>k</i> centroids in RGB space.",
+        "<b>Assign clusters.</b> Label each pixel by the index of the nearest centroid.",
+        "<b>Update centroids.</b> Replace each centroid by the mean of all pixels assigned "
+        "to that cluster (retain the old centroid if the cluster is empty).",
+        "<b>Iterate until convergence.</b> Repeat the distance–assignment–update cycle until "
+        "centroids stabilize within tolerance or the iteration budget is exhausted.",
+        "<b>Reconstruct the image.</b> Replace every pixel by its centroid color and reshape "
+        "the array back to (<i>H</i>, <i>W</i>, 3), then save the result.",
     ]
-    for title, desc in funcs:
-        story.append(Paragraph(f"<b>{title}.</b> {desc}", styles["body0"]))
+    story.append(
+        ListFlowable(
+            [ListItem(Paragraph(x, styles["bullet"]), leftIndent=8, bulletColor=NAVY) for x in recipe],
+            bulletType="1",
+            start="1",
+        )
+    )
+    story.append(Spacer(1, 0.1 * cm))
+    story.append(
+        Paragraph(
+            "Operationally, an RGB image is first flattened into an (<i>N</i>, 3) matrix so "
+            "that clustering acts on color vectors only; spatial coordinates are ignored. "
+            "After clustering, the label map restores spatial structure.",
+            styles["body"],
+        )
+    )
 
-    story.append(Paragraph("4.3. Main Program Workflow", styles["h2"]))
+    story.append(Paragraph("4.3. Detailed Function Descriptions", styles["h2"]))
+    story.append(
+        Paragraph(
+            "This subsection documents every major function in the notebook in the same "
+            "spirit as a technical specification: purpose, parameters, returns, and "
+            "algorithmic steps.",
+            styles["body"],
+        )
+    )
+
+    # ---- read_img ----
+    story.append(Paragraph("4.3.1. <font face='Courier'>read_img(img_path)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Read an image from disk and convert it into a NumPy array of shape (<i>H</i>, <i>W</i>, 3).", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b>", styles["body0"]))
+    story.append(ListFlowable([ListItem(Paragraph("<font face='Courier'>img_path</font> (str): path to the input image file.", styles["bullet"]), leftIndent=8)], bulletType="bullet", start="•"))
+    story.append(Paragraph("<b>Returns.</b> A floating-point RGB array <font face='Courier'>image_2d</font>.", styles["body0"]))
+    story.append(Paragraph("<b>Algorithm.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("Open the file with <font face='Courier'>PIL.Image.open</font>.", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("Convert explicitly to RGB to avoid RGBA/palette inconsistencies.", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("Cast to a NumPy array with dtype <font face='Courier'>float64</font> for stable clustering arithmetic.", styles["bullet"]), leftIndent=8),
+    ], bulletType="1", start="1"))
+
+    # ---- show_img ----
+    story.append(Paragraph("4.3.2. <font face='Courier'>show_img(img_2d)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Display a 2D image for visual inspection.", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b> <font face='Courier'>img_2d</font>: image array to display.", styles["body0"]))
+    story.append(Paragraph("<b>Algorithm.</b> Clip intensities to [0, 255], cast to 8-bit integers, call <font face='Courier'>matplotlib.pyplot.imshow</font>, and turn axes off.", styles["body0"]))
+
+    # ---- save_img ----
+    story.append(Paragraph("4.3.3. <font face='Courier'>save_img(img_2d, img_path)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Persist a reconstructed image to disk.", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("<font face='Courier'>img_2d</font>: image array to save;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>img_path</font> (str): destination path, including extension.", styles["bullet"]), leftIndent=8),
+    ], bulletType="bullet", start="•"))
+    story.append(Paragraph("<b>Algorithm.</b> Clip to [0, 255], convert to <font face='Courier'>uint8</font>, wrap with <font face='Courier'>PIL.Image.fromarray</font>, and call <font face='Courier'>save</font>. The extension determines the container (png / jpg / pdf).", styles["body0"]))
+
+    # ---- convert ----
+    story.append(Paragraph("4.3.4. <font face='Courier'>convert_img_to_1d(img_2d)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Flatten a spatial image into a design matrix of pixel colors.", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b> <font face='Courier'>img_2d</font> with shape (<i>H</i>, <i>W</i>, 3).", styles["body0"]))
+    story.append(Paragraph("<b>Returns.</b> Array of shape (<i>N</i>, 3) where <i>N</i> = <i>H</i>·<i>W</i>.", styles["body0"]))
+    story.append(Paragraph("<b>Algorithm.</b> Apply <font face='Courier'>reshape((-1, n_channels))</font> so that each row is one RGB vector ready for clustering.", styles["body0"]))
+
+    # ---- kmeans ----
+    story.append(Paragraph("4.3.5. <font face='Courier'>kmeans(img_1d, k_clusters, max_iter, init_centroids)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Perform K-Means on pixel colors to obtain a reduced palette and a label for every pixel.", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("<font face='Courier'>img_1d</font> (ndarray, shape (<i>N</i>, <i>c</i>)): flattened image;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>k_clusters</font> (int): number of clusters <i>k</i>;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>max_iter</font> (int): maximum Lloyd iterations;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>init_centroids</font> (str): <font face='Courier'>'random'</font> or <font face='Courier'>'in_pixels'</font>.", styles["bullet"]), leftIndent=8),
+    ], bulletType="bullet", start="•"))
+    story.append(Paragraph("<b>Returns.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("<font face='Courier'>centroids</font> (ndarray, shape (<i>k</i>, <i>c</i>)): cluster color prototypes;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>labels</font> (ndarray, shape (<i>N</i>,)): cluster index of each pixel.", styles["bullet"]), leftIndent=8),
+    ], bulletType="bullet", start="•"))
+    story.append(Paragraph("<b>Algorithm.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("<b>Initialize.</b> If <font face='Courier'>random</font>, sample each centroid coordinate uniformly from [0, 255]; if <font face='Courier'>in_pixels</font>, sample <i>k</i> distinct pixels without replacement.", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<b>Assign.</b> Compute squared Euclidean distances between all pixels and all centroids; set each label to the nearest centroid index (Eq. 4).", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<b>Update.</b> Replace each nonempty cluster’s centroid by the mean of its members (Eq. 5); keep the previous centroid if empty.", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<b>Stop.</b> Halt when <font face='Courier'>np.allclose</font> reports centroid changes below 10<sup>−4</sup>, or when <font face='Courier'>max_iter</font> is reached.", styles["bullet"]), leftIndent=8),
+    ], bulletType="1", start="1"))
+
+    # ---- generate ----
+    story.append(Paragraph("4.3.6. <font face='Courier'>generate_2d_img(img_2d_shape, centroids, labels)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Reconstruct a spatial image from centroids and pixel labels.", styles["body0"]))
+    story.append(Paragraph("<b>Parameters.</b>", styles["body0"]))
+    story.append(ListFlowable([
+        ListItem(Paragraph("<font face='Courier'>img_2d_shape</font> (tuple): original (<i>H</i>, <i>W</i>, 3);", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>centroids</font>: palette colors;", styles["bullet"]), leftIndent=8),
+        ListItem(Paragraph("<font face='Courier'>labels</font>: per-pixel cluster indices.", styles["bullet"]), leftIndent=8),
+    ], bulletType="bullet", start="•"))
+    story.append(Paragraph("<b>Returns.</b> New 2D image with at most <i>k</i> colors, dtype <font face='Courier'>uint8</font>.", styles["body0"]))
+    story.append(Paragraph("<b>Algorithm.</b> Index <font face='Courier'>centroids[labels]</font> to replace every pixel by its prototype, reshape to the original geometry, clip to [0, 255], and cast to 8-bit.", styles["body0"]))
+
+    # ---- mse helper ----
+    story.append(Paragraph("4.3.7. <font face='Courier'>reconstruction_error(img_1d, centroids, labels)</font>", styles["h3"]))
+    story.append(Paragraph("<b>Purpose.</b> Compute the mean squared error between original pixels and their reconstructed colors (Eq. 3), providing a quantitative complement to visual assessment.", styles["body0"]))
+    story.append(Paragraph("<b>Algorithm.</b> Form <font face='Courier'>centroids[labels]</font> and return the mean of squared coordinate-wise differences.", styles["body0"]))
+
+    story.append(Paragraph("4.4. Testing Procedure", styles["h2"]))
+    story.append(
+        Paragraph(
+            "The helper <font face='Courier'>test_functions(img_path)</font> performs an "
+            "end-to-end smoke test of the pipeline. When executed on a valid image it:",
+            styles["body0"],
+        )
+    )
+    tests = [
+        "reads the image and asserts that the array is a valid 3-channel RGB tensor;",
+        "displays the original image;",
+        "flattens the image and checks that the resulting shape is (<i>H</i>·<i>W</i>, 3);",
+        "runs K-Means with both <i>random</i> and <i>in_pixels</i> initializations (default <i>k</i> = 5);",
+        "asserts that centroid and label shapes match the specification;",
+        "reconstructs images, displays them, reports MSE, and saves png/pdf previews;",
+        "prints <font face='Courier'>All tests passed.</font> upon success.",
+    ]
+    story.append(
+        ListFlowable(
+            [ListItem(Paragraph(x, styles["bullet"]), leftIndent=8, bulletColor=NAVY) for x in tests],
+            bulletType="bullet",
+            start="•",
+        )
+    )
+    story.append(Spacer(1, 0.08 * cm))
+    story.append(
+        Paragraph(
+            "This procedure mirrors the validation workflow used during development and "
+            "documents that every stage—I/O, reshaping, clustering, reconstruction, and "
+            "export—operates consistently.",
+            styles["body"],
+        )
+    )
+
+    story.append(Paragraph("4.5. Main Program Workflow", styles["h2"]))
     story.append(
         Paragraph(
             "The interactive <font face='Courier'>main</font> procedure satisfies the "
@@ -924,9 +1052,10 @@ def build():
     story.append(
         Paragraph(
             "The pipeline then flattens the image, runs K-Means for each requested "
-            "initialization, displays the reconstruction, reports the MSE, and exports "
-            "the file in the selected format. Supporting checks are collected in "
-            "<font face='Courier'>test_functions</font>.",
+            "initialization, displays the reconstruction, reports the number of unique "
+            "colors and the MSE, and exports the file in the selected format. Running "
+            "both initializations in one session facilitates the side-by-side comparison "
+            "presented in Section 5.",
             styles["body"],
         )
     )
@@ -1056,43 +1185,92 @@ def build():
     ]
     story.append(styled_table(summary, [1.4 * cm, 7.2 * cm, 7.2 * cm]))
 
+
     # ========================= 6. DISCUSSION =========================
     story.append(Paragraph("6. Discussion", styles["h1"]))
     story.append(HLine(content_width, thickness=0.8, space_before=0, space_after=8))
+
+    story.append(Paragraph("6.1. Results Commentary", styles["h2"]))
     story.append(
         Paragraph(
-            "The experiments confirm the classical complexity–fidelity trade-off of "
-            "prototype methods. Small <i>k</i> yields aggressive compression and a "
-            "piecewise-constant appearance; larger <i>k</i> reduces distortion and "
-            "restores chromatic nuance at the expense of a bigger palette. In "
-            "mathematical terms, the feasible set of reconstructions expands with "
-            "<i>k</i>, so the minimal attainable value of <i>J</i> is monotonically "
-            "non-increasing in the palette size.",
+            "<b>Effect of palette size.</b> The experiments confirm the classical "
+            "complexity–fidelity trade-off of prototype methods. With <i>k</i> = 3 the "
+            "image is strongly posterized: only the dominant silhouette, mid-tone, and "
+            "sky modes survive. At <i>k</i> = 5, transitional horizon colors and richer "
+            "water structure reappear. At <i>k</i> = 7 the reconstruction approaches the "
+            "original more closely, with smoother apparent gradients. In mathematical "
+            "terms, the feasible set of reconstructions expands with <i>k</i>, so the "
+            "minimal attainable value of <i>J</i> is monotonically non-increasing in the "
+            "palette size.",
             styles["body"],
         )
     )
     story.append(
         Paragraph(
-            "Concerning initialization, universal claims that one scheme is always "
-            "“faster” or “better” are not warranted without measuring iteration counts "
-            "and objective values over repeated trials. The evidence available here "
-            "supports a more cautious statement: <i>in_pixels</i> places centroids on "
-            "the data manifold and therefore tends to avoid pathological empty-cluster "
-            "configurations, whereas <i>random</i> exploration can discover alternative "
-            "local minima. For images with concentrated color histograms the two "
-            "strategies often agree; divergence becomes more likely as <i>k</i> grows.",
+            "<b>Random initialization.</b> Centroids are drawn from the full RGB cube "
+            "[0, 255]<sup>3</sup>. This broad exploration can help discover separated "
+            "modes in chromatic images, but early iterations may produce empty clusters "
+            "when prototypes land far from the empirical color support. Visually, random "
+            "starts sometimes shift the tonal balance relative to in_pixels, especially "
+            "for moderate <i>k</i>.",
             styles["body"],
         )
     )
     story.append(
         Paragraph(
-            "Several limitations should be acknowledged. First, Euclidean distance in "
-            "RGB is only an approximate proxy for perceptual dissimilarity; distances "
-            "in CIELAB would align more closely with human judgment. Second, forming a "
-            "full distance tensor has memory cost <i>O</i>(<i>Nk</i>) and may require chunked "
+            "<b>In-pixels initialization.</b> Centroids are sampled from observed pixels, "
+            "hence they begin inside the data cloud. This usually yields a more favorable "
+            "initial value of the WCSS and more stable early assignments. For the beach "
+            "photograph studied here, in_pixels reconstructions often look slightly more "
+            "natural in the horizon band, although the difference is not uniformly large.",
+            styles["body"],
+        )
+    )
+
+    story.append(Paragraph("6.2. Comparison of Initialization Strategies", styles["h2"]))
+    story.append(
+        Paragraph(
+            "A careful reading of the figures does <b>not</b> support blanket claims that "
+            "one scheme is always faster or always superior in quality. Instead:",
+            styles["body0"],
+        )
+    )
+    comps = [
+        "<i>random</i> may be advantageous when the image occupies many well-separated "
+        "regions of RGB space, because unconstrained sampling can place seeds near "
+        "several modes;",
+        "<i>in_pixels</i> is generally safer for images with concentrated or nearly "
+        "uniform palettes, because every seed is a feasible color from the outset;",
+        "for small <i>k</i> (e.g., 3), both methods often recover essentially the same "
+        "dominant modes; divergence becomes more visible as <i>k</i> grows.",
+    ]
+    story.append(
+        ListFlowable(
+            [ListItem(Paragraph(x, styles["bullet"]), leftIndent=8, bulletColor=NAVY) for x in comps],
+            bulletType="bullet",
+            start="•",
+        )
+    )
+    story.append(Spacer(1, 0.08 * cm))
+    story.append(
+        Paragraph(
+            "Thus the recommended experimental practice—implemented in "
+            "<font face='Courier'>main</font>—is to run both initializations and compare "
+            "reconstructions (and, when available, MSE) before choosing an export.",
+            styles["body"],
+        )
+    )
+
+    story.append(Paragraph("6.3. Limitations", styles["h2"]))
+    story.append(
+        Paragraph(
+            "Several limitations should be acknowledged. First, Euclidean distance in RGB "
+            "is only an approximate proxy for perceptual dissimilarity; distances in "
+            "CIELAB would align more closely with human judgment. Second, forming a full "
+            "distance tensor has memory cost <i>O</i>(<i>Nk</i>) and may require chunked "
             "evaluation for very large images. Third, a single photograph does not "
-            "exhaust the diversity of natural scenes; a broader benchmark would "
-            "strengthen statistical conclusions.",
+            "exhaust the diversity of natural scenes; a broader benchmark with repeated "
+            "random seeds would strengthen statistical conclusions about initialization.",
             styles["body"],
         )
     )
