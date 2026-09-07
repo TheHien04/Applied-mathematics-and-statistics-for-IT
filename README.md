@@ -549,10 +549,9 @@ Primary results should be cited from the project PDF when a page-level reference
 
 ## Instructors
 
-- Mr. Vũ Quốc Hoàng
-- Mr. Nguyễn Văn Quang Huy
-- Mr. Nguyễn Ngọc Toàn
-- Mrs. Phan Thị Phương Uyên
+- Teacher: Võ Nam Thục Đoan
+- Teacher: Đinh Ngọc Thanh
+- Teacher: Nguyễn Hữu Toàn
 
 ---
 
