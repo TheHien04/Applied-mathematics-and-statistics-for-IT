@@ -1,6 +1,4 @@
-# Toán ứng dụng và thống kê cho Công nghệ thông tin
-
-**Applied Mathematics and Statistics for Information Technology**
+# Applied Mathematics and Statistics for Information Technology
 
 | Field | Record |
 |:------|:-------|
@@ -21,8 +19,6 @@ This repository is a complete, reproducible archive of the MTH00051 curriculum. 
 Library factorisations (`numpy.linalg.solve`, `numpy.linalg.qr`, `numpy.linalg.eig`) are used exclusively as independent numerical witnesses. Student solvers follow defining equations, report ranks and residual norms, and record seeds, fold protocols, and state thresholds so that every table in the reports can be regenerated.
 
 **Keywords.** Gaussian elimination; Gram–Schmidt; matrix diagonalization; ordinary least squares; $k$-means; discrete convolution; Markov chains; cross-validation; hedonic pricing; computational linear algebra.
-
-**Tóm tắt.** Kho lưu trữ này tập hợp đủ bảy đồ án thực hành và hai đồ án cuối kỳ môn MTH00051. Mỗi mục gắn một đối tượng toán học cổ điển với cài đặt Python từ phương trình định nghĩa và báo cáo học thuật tương ứng. Trọng tâm là tính minh bạch của toán, tính đúng của số trị, và khả năng tái lập — không thay thế giải thuật bằng hộp đen thư viện.
 
 ---
 
@@ -181,7 +177,7 @@ Headline numbers are those reported in the corresponding notebook. They are not 
 
 Each folder is autarkic. The notebook is the computational artefact; the PDF, when present, is the archival write-up (problem, theory, method, experiments, discussion, references). Course briefs sit beside the solutions that answer them.
 
-Folder names follow the laboratory numbering of the course (`Project 1` … `Project7`, `Final 1`, `Final 2`). Internal titles of later notebooks (e.g. “Đồ án 3: Gram–Schmidt”) refer to the computational-algebra sub-sequence and are not a second global index.
+Folder names follow the laboratory numbering of the course (`Project 1` … `Project7`, `Final 1`, `Final 2`). Internal titles of later notebooks (for example, “Project 3: Gram–Schmidt” inside the computational-algebra sequence) are not a second global index.
 
 ---
 
@@ -277,7 +273,7 @@ Selection uses **five-fold cross-validation** after shuffling the training set *
 
 **Formulation.** Form $[A\mid b]$ and reduce to row-echelon form. At column $i$, partial pivoting selects the largest absolute entry on or below the diagonal; the pivot row is scaled to $1$ and entries below the pivot are annihilated. Back substitution recovers $x$. The algorithm distinguishes the three classical alternatives:
 
-- unique solution if $\operatorname{rank}(A)=\operatorname{rank}([A\mid b])=n$;
+- unique solution if $\mathrm{rank}(A)=\mathrm{rank}([A\mid b])=n$;
 - no solution if a zero row of $A$ faces a nonzero right-hand side;
 - infinitely many solutions if the rank is strictly less than the number of unknowns.
 
@@ -332,7 +328,7 @@ Linear dependence is detected when $\lVert u_k\rVert_2=0$. Classical complexity 
 
 1. Coefficients of $\det(\lambda I-A)$ by the Faddeev–LeVerrier recurrence; roots are the eigenvalues $\lambda_i$.
 2. For each $\lambda_i$, a basis of $\ker(A-\lambda_i I)$ from the RREF of the homogeneous system.
-3. Columns of $P$ are eigenvectors; $D=\operatorname{diag}(\lambda_1,\ldots,\lambda_n)$.
+3. Columns of $P$ are eigenvectors; $D=\mathrm{diag}(\lambda_1,\ldots,\lambda_n)$.
 4. $P^{-1}$ by Gauss–Jordan on $[P\mid I]$. Reconstruction $\hat A=PDP^{-1}$.
 
 A standard application is $A^k=PD^k P^{-1}$.
