@@ -1,0 +1,9 @@
+.DS_Store
+.venv/
+.ipython/
+.jupyter/
+.jupyter-data/
+.mplconfig/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
