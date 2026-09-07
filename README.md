@@ -1,10 +1,39 @@
-# Applied Mathematics and Statistics for IT
+# Toán ứng dụng và thống kê cho Công nghệ thông tin
 
-**Course:** MTH00051 — Applied Mathematics and Statistics  
-**Institution:** Faculty of Information Technology, University of Science, VNU–HCM  
-**Student:** Nguyễn Thế Hiển · `22127107` · Class `22CLC08`
+**Applied Mathematics and Statistics for Information Technology**
 
-This repository collects seven practical projects and two final dissertations from the applied mathematics and statistics curriculum. Each artefact links a classical mathematical idea—clustering in Euclidean space, discrete image operators, Gaussian elimination, Gram–Schmidt orthogonalization, matrix diagonalization, ordinary least squares, and finite Markov chains—to a reproducible Python implementation and an academic report.
+| | |
+|:---|:---|
+| **Course** | MTH00051 — Applied Mathematics and Statistics |
+| **Institution** | Faculty of Information Technology, University of Science, VNU–HCM |
+| **Student** | Nguyễn Thế Hiển · Student ID `22127107` · Class `22CLC08` |
+| **Period** | Academic years 2024–2026 |
+| **Artefacts** | Seven laboratory projects and two final dissertations |
+
+This repository is the complete coursework archive for MTH00051. Each item pairs a classical mathematical construction with a from-scratch Python implementation and, where required, a formal academic report. The sequence runs from unsupervised clustering and discrete image operators, through Gaussian elimination, Gram–Schmidt orthogonalization and matrix diagonalization, to ordinary least squares and finite Markov chains.
+
+Implementations follow the defining equations. Library linear-algebra routines (`numpy.linalg.solve`, `numpy.linalg.qr`, `numpy.linalg.eig`) appear only as independent numerical checks, never as the student solver.
+
+---
+
+## Contents
+
+1. [Mathematical Scope](#mathematical-scope)
+2. [Repository Structure](#repository-structure)
+3. [Project 1 — Color Compression via $k$-Means](#project-1--color-compression-via-k-means)
+4. [Project 2 — Image Processing](#project-2--image-processing)
+5. [Project 3 — Linear Regression](#project-3--linear-regression)
+6. [Project 4 — Gaussian Elimination](#project-4--gaussian-elimination)
+7. [Project 5 — Gram–Schmidt QR Decomposition](#project-5--gramschmidt-qr-decomposition)
+8. [Project 6 — Diagonalizable Matrices](#project-6--diagonalizable-matrices)
+9. [Project 7 — Linear Regression for Wine Quality](#project-7--linear-regression-for-wine-quality)
+10. [Final 1 — Markov Modelling of S&P 500 Market Regimes](#final-1--markov-modelling-of-sp-500-market-regimes)
+11. [Final 2 — Stockton House Prices and a Finite Traffic Chain](#final-2--stockton-house-prices-and-a-finite-traffic-chain)
+12. [Environment & Reproduction](#environment--reproduction)
+13. [Report Convention](#report-convention)
+14. [Academic Integrity](#academic-integrity)
+15. [Instructors](#instructors)
+16. [References](#references-selected)
 
 ---
 
@@ -22,7 +51,15 @@ This repository collects seven practical projects and two final dissertations fr
 | **F1** | Discrete-time Markov market regimes | Stochastic kernel $\hat P$; $v_t=v_0P^t$; stationary $\pi$ | Regime classification, forecast, and first-order Markov diagnostics |
 | **F2** | Hedonic pricing and a traffic chain | OLS residual norm; polynomial / interaction designs; finite Markov kernel | In-sample model ranking and Chapman–Kolmogorov evolution |
 
-Across all items, the emphasis is on **transparent mathematics**, **correct numerical realization from defining equations**, and **report-level documentation** rather than black-box library pipelines. Library solvers (`numpy.linalg.solve`, `numpy.linalg.qr`, `numpy.linalg.eig`) appear only as independent numerical checks.
+The archive is organised in three blocks.
+
+| Block | Folders | Pedagogical role |
+|:------|:--------|:-----------------|
+| Laboratory sequence | Projects 1–3 | Clustering, discrete image operators, and OLS with held-out evaluation |
+| Computational linear algebra | Projects 4–7 | Gaussian elimination, Gram–Schmidt $QR$, diagonalization $A=PDP^{-1}$, and multivariate OLS on wine chemistry |
+| Capstone dissertations | Final 1, Final 2 | Discrete-time Markov regimes on equity returns; hedonic pricing and a finite traffic chain |
+
+Across all items, the emphasis is on **transparent mathematics**, **correct numerical realization from defining equations**, and **report-level documentation** rather than black-box library pipelines.
 
 ---
 
@@ -67,7 +104,9 @@ Across all items, the emphasis is on **transparent mathematics**, **correct nume
     └── stockton4.def                           # Variable dictionary
 ```
 
-Each folder is self-contained: the notebook is the computational artefact; the PDF is the formal write-up (problem statement, theory, method, experiments, discussion, references). Assignment briefs are kept beside the solutions where they were issued.
+Each folder is self-contained. The notebook is the computational artefact; the PDF (when present) is the formal write-up—problem statement, theory, method, experiments, discussion, and references. Course briefs are kept beside the solutions where they were issued.
+
+Projects 4–7 and both final dissertations are included in full in this archive (notebooks, data files, assignment briefs, and submitted reports).
 
 ---
 
