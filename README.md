@@ -45,9 +45,8 @@ Library factorisations (`numpy.linalg.solve`, `numpy.linalg.qr`, `numpy.linalg.e
 19. [Environment and reproduction](#environment-and-reproduction)
 20. [Report convention](#report-convention)
 21. [Academic integrity](#academic-integrity)
-22. [How to cite](#how-to-cite)
-23. [Instructors](#instructors)
-24. [References](#references)
+22. [Instructors](#instructors)
+23. [References](#references)
 
 ---
 
@@ -523,27 +522,6 @@ Equations are stated before they are coded. Metrics are defined before they are 
 ## Academic integrity
 
 All notebooks and reports in this repository are the coursework of **Nguyễn Thế Hiển (22127107)**. Implementations observe the constraints of each assignment (permitted libraries, required signatures, prescribed metrics). External sources used for theory or tooling are cited in the corresponding PDF. This archive is submitted as evidence of independent work, not as a third-party solution set.
-
----
-
-## How to cite
-
-If this archive is referenced (for example in a later report or a related project), use:
-
-> Nguyễn Thế Hiển. (2026). *Applied Mathematics and Statistics for Information Technology* (MTH00051 coursework archive, student 22127107). Faculty of Information Technology, University of Science, VNU–HCM. https://github.com/TheHien04/Applied-mathematics-and-statistics-for-IT
-
-```bibtex
-@misc{hien2026mth00051,
-  author       = {Nguyễn Thế Hiển},
-  title        = {Applied Mathematics and Statistics for Information Technology},
-  year         = {2026},
-  howpublished = {Coursework archive, MTH00051, University of Science, VNU--HCM},
-  note         = {Student ID 22127107},
-  url          = {https://github.com/TheHien04/Applied-mathematics-and-statistics-for-IT}
-}
-```
-
-Primary results should be cited from the project PDF when a page-level reference is needed.
 
 ---
 
